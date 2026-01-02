@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Allo – Product Timeline</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="container">
+
+  <!-- SVG GRAPH -->
+  <svg id="graph" viewBox="0 0 1000 500">
+    <!-- Axes -->
+    <line x1="100" y1="400" x2="900" y2="400" class="axis"/>
+    <line x1="100" y1="100" x2="100" y2="400" class="axis"/>
+
+    <!-- Trail -->
+    <path id="trail" fill="none"/>
+
+    <!-- Logo -->
+    <image
+      id="logo"
+      href="how-to-use-google-allo-logo.webp"
+      width="52"
+      height="52"
+      x="74"
+      y="374"
+    />
+  </svg>
+
+  <!-- Pixel Canvas -->
+  <canvas id="pixelCanvas"></canvas>
+
+  <!-- Text Bubble -->
+  <div id="bubble"></div>
+
+  <!-- CTA -->
+  <div id="cta">
+    <h2>To see the difference made by the new product team</h2>
+    <button>Click here</button>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
