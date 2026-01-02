@@ -7,7 +7,7 @@ const camera = document.getElementById("camera");
 const canvas = document.getElementById("pixelCanvas");
 const ctx = canvas.getContext("2d");
 
-/* CANVAS RESIZE */
+/* Resize canvas */
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -15,7 +15,7 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-/* SVG → SCREEN COORDINATE CONVERSION */
+/* SVG → screen coords */
 function svgToScreen(x, y) {
   const svg = document.getElementById("graph");
   const pt = svg.createSVGPoint();
@@ -24,12 +24,11 @@ function svgToScreen(x, y) {
   return pt.matrixTransform(svg.getScreenCTM());
 }
 
-/* CAMERA ZOOM */
-function zoomTo(x, y, scale = 2.6) {
-  const screen = svgToScreen(x, y);
+/* Camera control */
+function zoomTo(svgX, svgY, scale = 2.2) {
+  const screen = svgToScreen(svgX, svgY);
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight / 2;
-
   camera.style.transform =
     `translate(${cx - screen.x}px, ${cy - screen.y}px) scale(${scale})`;
 }
@@ -38,39 +37,32 @@ function resetCamera() {
   camera.style.transform = "translate(0,0) scale(1)";
 }
 
-/* TIMELINE DATA */
+/* Timeline */
 let step = 0;
-let path = `M 100 400`;
+let path = "M 100 400";
 
 const points = [
-  {
-    x: 100, y: 400, color: "#00f6ff",
-    text: "In May 2016, Google introduced Allo."
-  },
-  {
-    x: 350, y: 150, color: "#00f6ff",
-    text: "Sept 2016\nIntroduced Smart Reply and embedded Google Assistant"
-  },
-  {
-    x: 520, y: 260, color: "#ff3b3b",
-    text: "Dec 2016\nPrivacy backlash\nDefault chats weren’t end-to-end encrypted"
-  },
-  {
-    x: 650, y: 200, color: "#00f6ff",
-    text: "2017 WEB CLIENT LAUNCH\n• Phone pairing\n• Single-device limitation\n• Arrived late"
-  },
-  {
-    x: 800, y: 330, color: "#ff3b3b",
-    text: "2018\nGoogle pauses investment"
-  },
-  {
-    x: 900, y: 400, color: "#ff3b3b",
+  { x: 100, y: 400, color: "#00f6ff",
+    text: "In May 2016, Google introduced Allo." },
+
+  { x: 350, y: 150, color: "#00f6ff",
+    text: "Sept 2016\nIntroduced Smart Reply and embedded Google Assistant" },
+
+  { x: 520, y: 260, color: "#ff4040",
+    text: "Dec 2016\nPrivacy backlash\nDefault chats weren’t end-to-end encrypted" },
+
+  { x: 650, y: 200, color: "#00f6ff",
+    text: "2017 WEB CLIENT LAUNCH\n• Phone pairing\n• Single-device limitation\n• Arrived late" },
+
+  { x: 800, y: 330, color: "#ff4040",
+    text: "2018\nGoogle pauses investment" },
+
+  { x: 900, y: 400, color: "#ff4040",
     text: "March 2019\nGoogle Allo discontinued",
-    crash: true
-  }
+    crash: true }
 ];
 
-/* CLICK HANDLER */
+/* Click handler */
 logo.addEventListener("click", () => {
   if (step >= points.length - 1) return;
 
@@ -85,9 +77,11 @@ logo.addEventListener("click", () => {
   logo.setAttribute("y", p.y - 26);
   logo.style.filter = `drop-shadow(0 0 22px ${p.color})`;
 
+  const screen = svgToScreen(p.x, p.y);
+
   bubble.innerText = p.text;
-  bubble.style.left = `${p.x + 40}px`;
-  bubble.style.top = `${p.y - 60}px`;
+  bubble.style.left = `${screen.x + 40}px`;
+  bubble.style.top = `${Math.max(40, screen.y - 90)}px`;
   bubble.classList.add("show");
 
   zoomTo(p.x, p.y);
@@ -105,7 +99,7 @@ function pixelCrash(svgX, svgY) {
   const img = new Image();
   img.src = logo.href.baseVal;
 
-  const screen = svgToScreen(svgX, svgY);
+  const origin = svgToScreen(svgX, svgY);
 
   img.onload = () => {
     const size = 3;
@@ -123,10 +117,10 @@ function pixelCrash(svgX, svgY) {
         const d = tctx.getImageData(x, y, size, size).data;
         if (d[3] > 0) {
           particles.push({
-            x: screen.x + x,
-            y: screen.y + y,
-            vx: (Math.random() - 0.5) * 14,
-            vy: Math.random() * -12,
+            x: origin.x + x,
+            y: origin.y + y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: Math.random() * -6,
             alpha: 1
           });
         }
@@ -140,10 +134,10 @@ function pixelCrash(svgX, svgY) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach(p => {
-        p.vy += 0.7;
+        p.vy += 0.5;
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha -= 0.02;
+        p.alpha -= 0.018;
 
         ctx.fillStyle = `rgba(255,80,80,${p.alpha})`;
         ctx.fillRect(p.x, p.y, size, size);
